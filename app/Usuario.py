@@ -42,13 +42,11 @@ def obtener_horas(profesional_id):
     try:
 
         # Selecciona las horas disponibles para el profesional dado
-        c.execute("""
-            SELECT p.id AS profesional_id, p.nombre, p.especializacion, p.telefono, u.latitud, u.longitud, h.dia, h.hora_inicio, h.hora_fin
-        FROM GestionProfesionales.profesional p
-        JOIN GestionProfesionales.ubicacion u ON p.id = u.profesional_id
-        LEFT JOIN GestionProfesionales.horarios h ON p.id = h.profesional_id
-        WHERE p.id = %s;
-        """, (profesional_id,))
+        c.execute( """
+            SELECT h.id, h.hora_inicio, h.hora_fin, h.dia
+            FROM horarios h
+            WHERE h.profesional_id = %s
+        """,(profesional_id,))
         
         horarios = c.fetchall()
 
