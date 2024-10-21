@@ -29,8 +29,9 @@ function initMap() {
     .catch(error => console.error('Error al cargar los profesionales:', error));
 
 }
+//desde  aquí
 
-function cargarProfesionalEnOffCanvas(nombre, especializacion, telefono, latitud,longitud,profesionalId) {
+function cargarProfesionalEnOffCanvas(nombre, especializacion, telefono, latitud,longitud,profesionalId, horarios) {
     // Selecciona el contenedor del off-canvas
     const offCanvasContent = document.getElementById("offCanvasContent");
 
@@ -42,26 +43,30 @@ function cargarProfesionalEnOffCanvas(nombre, especializacion, telefono, latitud
             <p>Teléfono: ${telefono}</p>
             <h6>Días Disponibles</h6>
             <ul class="list-group" id="days-list">
-                <li class="list-group-item" data-day="15">Día 15</li>
-                <ul class="list-group hours-list" id="hours-15"></ul>
-                <li class="list-group-item" data-day="16">Día 16</li>
-                <ul class="list-group hours-list" id="hours-16"></ul>
-                <li class="list-group-item" data-day="17">Día 17</li>
-                <ul class="list-group hours-list" id="hours-17"></ul>
-            </ul>
         </div>
         <hr>
     `;
 
+ 
+    //             <li class="list-group-item" data-day="15">Día 15</li>
+    //             <ul class="list-group hours-list" id="hours-15"></ul>
+    //             <li class="list-group-item" data-day="16">Día 16</li>
+    //             <ul class="list-group hours-list" id="hours-16"></ul>
+    //             <li class="list-group-item" data-day="17">Día 17</li>
+    //             <ul class="list-group hours-list" id="hours-17"></ul>
+    //         </ul>
+    // -------------------------------
     // Simular horas disponibles
-    const hours = {
-        '15': ['10:00 - 11:00', '12:00 - 13:00', '14:00 - 15:00'],
-        '16': ['09:00 - 10:00', '11:00 - 12:00', '15:00 - 16:00'],
-        '17': ['08:00 - 09:00', '13:00 - 14:00', '16:00 - 17:00']
-    };
+    // const hours = {
+    //     '15': ['10:00 - 11:00', '12:00 - 13:00', '14:00 - 15:00'],
+    //     '16': ['09:00 - 10:00', '11:00 - 12:00', '15:00 - 16:00'],
+    //     '17': ['08:00 - 09:00', '13:00 - 14:00', '16:00 - 17:00']
+    // };
 
-    // Manejar el clic en los días disponibles
+    
     const daysList = document.getElementById('days-list');
+        // Manejar el clic en los días disponibles
+    daysList = document.getElementById('days-list');
     daysList.addEventListener('click', (event) => {
         if (event.target && event.target.matches('li.list-group-item')) {
             const selectedDay = event.target.getAttribute('data-day');
@@ -69,41 +74,52 @@ function cargarProfesionalEnOffCanvas(nombre, especializacion, telefono, latitud
         }
     });
 
+    // Cargar Los días y horas disponible
+    horarios.forEach(horario => {
+        
+        console.log(`Cargando horarios: Día ${horario.dia}, Hora Inicio: ${horario.hora_inicio}, Hora Fin: ${horario.hora_fin}`);
+
+        const dayItem = document.createElement('li')
+        dayItem.classList.add('list-group-item')
+        dayItem.dataset.day = `Día${horario.dia}`;
+        dayItem.setAttribute('data-day', horario.dia);
+
+        const   hoursListElement = document.createElement('ul')
+        hoursListElement.classList.add('list-group', 'hours-list')
+        hoursListElement.id = `hours-${horario.dia}`;
+        hoursListElement.dataset.day = 'none';
+
+        // Cargar haras  disponibles
+        const hourItem = document.createElement('li');
+        hourItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+        hourItem.textContent = `${horario.hora_inicio} -  ${horario.hora_fin}`
+
+        const agendarButton  = document.createElement('button');
+        agendarButton.classList.add('btn', 'btn-primary', 'btn-agendar');
+        agendarButton.textContent = 'Agendar';
+        agendarButton.addEventListener('click', () => {
+            confirmAppointment(horario.dia, horario.hora_inicio);
+        });
+
+        horarioItem.appendChild(agendarButton);
+        hoursListElement.appendChild(hourItem);
+        dayItem.appendChild(hoursListElement);
+        daysList.appendChild(dayItem);
+
+    })
+  
+
+
     // Alternar la visibilidad de las horas y cargarlas
     function toggleHoursForDay(day, selectedElement) {
         const hoursListElement = document.getElementById('hours-' + day);
 
         if (hoursListElement.style.display === 'none' || hoursListElement.style.display === '') {
             hoursListElement.style.display = 'block';
-            loadHoursForDay(day, hoursListElement);
             selectedElement.classList.add('active');
         } else {
             hoursListElement.style.display = 'none';
             selectedElement.classList.remove('active');
-        }
-    }
-
-    // Cargar las horas disponibles para el día seleccionado
-    function loadHoursForDay(day, hoursListElement) {
-        hoursListElement.innerHTML = ''; // Limpiar horas previas
-
-        // Verificar si hay horas simuladas para el día seleccionado
-        if (hours[day]) {
-            hours[day].forEach(hour => {
-                const hourItem = document.createElement('li');
-                hourItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                hourItem.textContent = hour;
-
-                const agendarButton = document.createElement('button');
-                agendarButton.classList.add('btn', 'btn-primary', 'btn-agendar');
-                agendarButton.textContent = 'Agendar';
-                agendarButton.addEventListener('click', () => {
-                    confirmAppointment(day, hour);
-                });
-
-                hourItem.appendChild(agendarButton);
-                hoursListElement.appendChild(hourItem);
-            });
         }
     }
 
@@ -116,3 +132,4 @@ function cargarProfesionalEnOffCanvas(nombre, especializacion, telefono, latitud
     var offcanvasRight = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'));
     offcanvasRight.show();
 }
+
